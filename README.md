@@ -1,5 +1,5 @@
 # hy-kubernetes
-Course work for the DevOps with Kubernetes course in University of Helsinki
+Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) course of the University of Helsinki
 
 ## Exercises
 
