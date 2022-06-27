@@ -31,7 +31,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
           - name: shared-volume
-            mountPath: /data
+            path: /data
           env:
           - name: DATA_PATH
             value: /data
