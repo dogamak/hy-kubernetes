@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+    spec:
+      volumes:
+      - name: todo-volume
+        persistentVolumeClaim:
+          claimName: todo-claim
+      containers:
+        - name: todo
+          image: dogamak/hy-kubernetes-todo-app:v0.6
+          imagePullPolicy: Always
+          volumeMounts:
+          - name: todo-volume
+            mountPath: /data
+          env:
+          - name: DATA_PATH
+            value: /data
