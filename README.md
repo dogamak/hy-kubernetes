@@ -3,6 +3,8 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 
 ## Exercises
 
+### Part 1
+
 - [Exercise 1.01: Getting started](exercise_1.01)
 - [Exercise 1.02: Project v0.1](exercise_1.02)
 - [Exercise 1.03: Declarative approach](exercise_1.03)
@@ -12,3 +14,5 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 - [Exercise 1.07: External access with Ingress](exercise_1.07)
 - [Exercise 1.08: Project v0.5](exercise_1.08)
 - [Exercise 1.09: More services](exercise_1.09)
+- [Exercise 1.10: Even more services](exercise_1.10)
+- [Exercise 1.11: Persisting data](exercise_1.11)
