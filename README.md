@@ -17,3 +17,6 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 - [Exercise 1.10: Even more services](exercise_1.10)
 - [Exercise 1.11: Persisting data](exercise_1.11)
 - [Exercise 1.12: Project v0.6](exercise_1.12)
+
+### Part 2
+- [Exercise 2.01: Connecting pods](exercise_2.01)
