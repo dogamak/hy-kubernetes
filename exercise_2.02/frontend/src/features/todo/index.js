@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useCreateTodoMutation, useGetTodosQuery } from '../../api/todo'
 import './style.css'
 
 const TodoInput = ({ onNewItem }) => {
@@ -21,27 +22,27 @@ const TodoList = ({ items }) => {
   return (
     <ul className="todo-list">
       {items.map((item) => (
-        <li>{item}</li>
+        <li key={item.id}>{item.text}</li>
       ))}
     </ul>
   )
 }
 
 export const TodoWidget = () => {
-  const [items, setItems] = useState([
-    'Implement rest of the TODO functionality',
-    'Pet dogs',
-    'Enjoy life'
-  ])
+  const { data: items, isLoading } = useGetTodosQuery()
+  const [createTodo] = useCreateTodoMutation()
 
   const handleNewItem = (item) => {
-    setItems(items => [...items, item])
+    createTodo({
+      text: item,
+    })
   }
 
   return (
     <div className="todo-container">
       <h3>Todo List</h3>
-      <TodoList items={items} />
+      {isLoading && <p>Loading...</p>}
+      <TodoList items={items ?? []} />
       <TodoInput onNewItem={handleNewItem} />
     </div>
   )

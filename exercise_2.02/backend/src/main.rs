@@ -1,17 +1,20 @@
 use actix_web::{
-    get,
+    get, post,
     web::{Data, Json},
     App, HttpServer, Result,
 };
 use chrono::{Date, NaiveDateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
+    collections::HashMap,
     env::{var, var_os},
     fs::File,
     io::{Read, Write},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
     time::SystemTime,
 };
+use uuid::Uuid;
 
 #[derive(Serialize)]
 struct PictureOfTheDayResponse {
@@ -31,6 +34,40 @@ async fn fetch_picture<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     file.write(&*bytes)?;
 
     Ok(())
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct Todo {
+    id: Uuid,
+    text: String,
+}
+
+impl Todo {
+    fn new(text: String) -> Todo {
+        let id = Uuid::new_v4();
+
+        Todo { id, text }
+    }
+}
+
+#[derive(Deserialize)]
+struct CreateTodoPayload {
+    text: String,
+}
+
+#[post("/api/todo")]
+async fn create_todo(body: Json<CreateTodoPayload>, state: Data<Arc<Mutex<State>>>) -> Json<Todo> {
+    let mut state = state.lock().unwrap();
+    let todo = Todo::new(body.text.clone());
+    state.todos.insert(todo.id.clone(), todo.clone());
+
+    Json(todo)
+}
+
+#[get("/api/todo")]
+async fn list_todos(state: Data<Arc<Mutex<State>>>) -> Json<Vec<Todo>> {
+    let state = state.lock().unwrap();
+    Json(state.todos.values().cloned().collect())
 }
 
 #[get("/api/picture-of-the-day")]
@@ -67,6 +104,18 @@ struct Config {
     data_path: PathBuf,
 }
 
+struct State {
+    todos: HashMap<Uuid, Todo>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        State {
+            todos: HashMap::new(),
+        }
+    }
+}
+
 #[actix_web::main]
 async fn main() -> Result<(), std::io::Error> {
     let port_str = match var("PORT") {
@@ -93,10 +142,15 @@ async fn main() -> Result<(), std::io::Error> {
 
     let config = Config { data_path };
 
+    let state = Arc::new(Mutex::new(State::default()));
+
     let server = HttpServer::new(move || {
         App::new()
             .app_data(Data::new(config.clone()))
+            .app_data(Data::new(state.clone()))
             .service(picture_of_the_day)
+            .service(create_todo)
+            .service(list_todos)
             .service(actix_files::Files::new("/data", config.data_path.clone()))
             .default_service(
                 actix_files::Files::new("", "/static").index_file("/static/index.html"),
