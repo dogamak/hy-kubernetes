@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: log-ping-pong
+  name: log-output-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      containers:
+        - name: log-output
+          image: dogamak/hy-kubernetes-log-output-app:v3
+          imagePullPolicy: Always
+          env:
+          - name: PONG_URL
+            value: http://ping-pong-svc:8080
