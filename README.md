@@ -20,3 +20,4 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 
 ### Part 2
 - [Exercise 2.01: Connecting pods](exercise_2.01)
+- [Exercise 2.02: Project v1.0](exercise_2.02)

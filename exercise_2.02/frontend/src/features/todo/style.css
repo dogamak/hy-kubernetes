@@ -1,0 +1,27 @@
+.todo-container {
+  background-color: #393d48;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+
+.todo-input {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.5em;
+  width: 100%;
+  height: 1.5em;
+}
+
+.todo-input input {
+  flex-grow: 1;
+  padding: 0 0.5em;
+}
+
+.todo-input button {
+  min-width: 5em;
+}
+
+.todo-list {
+  text-align: left;
+}
