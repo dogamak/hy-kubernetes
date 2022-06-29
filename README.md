@@ -21,3 +21,7 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 ### Part 2
 - [Exercise 2.01: Connecting pods](exercise_2.01)
 - [Exercise 2.02: Project v1.0](exercise_2.02)
+- [Exercise 2.03: Keep them separated](exercise_2.03)
+- [Exercise 2.04: Project v1.1](exercise_2.04)
+- Exercise 2.05: Secrets (Nothing to submit)
+- [Exercise 2.06: Documentation and ConfigMaps](exercise_2.06)
