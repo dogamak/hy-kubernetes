@@ -1,0 +1,11 @@
+[http]
+port = 8080
+
+[app]
+
+[database]
+host = "localhost"
+port = 5432
+user = "postgres"
+database = "development"
+password = "postgres"

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: todo-ns
+  name: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+    spec:
+      volumes:
+        - name: todo-volume
+          persistentVolumeClaim:
+            claimName: todo-claim
+        - name: config-volume
+          configMap:
+            name: todo-config-map
+      containers:
+        - name: backend
+          image: dogamak/hy-kubernetes-todo-backend:v1.2
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: todo-volume
+              mountPath: /data
+            - name: config-volume
+              mountPath: /config.toml
+              subPath: config
+          env:
+            - name: DATA_PATH
+              value: /data
+            - name: TODO_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+        - name: frontend
+          image: dogamak/hy-kubernetes-todo-frontend:v1.2
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: todo-volume
+              mountPath: /data
