@@ -25,3 +25,8 @@ Course work for the [DevOps with Kubernetes](https://devopswithkubernetes.com/) 
 - [Exercise 2.04: Project v1.1](exercise_2.04)
 - Exercise 2.05: Secrets (Nothing to submit)
 - [Exercise 2.06: Documentation and ConfigMaps](exercise_2.06)
+- [Exercise 2.07: Stateful applications](exercise_2.07)
+- [Exercise 2.08: Project v1.2](exercise_2.08)
+- [Exercise 2.09: Daily todos](exercise_2.09)
+- [Exercise 2.10: Project v1.3](exercise_2.10)
+

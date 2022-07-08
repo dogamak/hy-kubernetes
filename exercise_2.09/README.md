@@ -1,4 +1,4 @@
-# Exercise 2.08: Project v1.2
+# Exercise 2.09: Daily todos
 
 ```shell
 $ kubectl create namespace todo-ns

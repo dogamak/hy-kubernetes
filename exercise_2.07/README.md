@@ -1,4 +1,4 @@
-# Exercise 2.06: Documentation and ConfigMaps
+# Exercise 2.07: Stateful applications
 
 ```shell
 $ kubectl create namespace log-ping-pong
