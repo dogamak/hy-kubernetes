@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: todo-ns
+  name: daily-todo-cronjob
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: config-volume
+              configMap:
+                name: todo-config-map
+          containers:
+            - name: daily-todo-job
+              image: dogamak/hy-kubernetes-todo-daily-todo-job:v1.2
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /config.toml
+                  subPath: config
+              env:
+                - name: DATA_PATH
+                  value: /data
+                - name: TODO_DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-secret
+                      key: password
