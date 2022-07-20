@@ -39,7 +39,7 @@ jobs:
       - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       - name: Build Frontend
-        run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" frontend
+        run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
 
       - name: Publish Frontend
         run: docker push "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
@@ -67,10 +67,10 @@ jobs:
       - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       - name: Build Backend
-        run: docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app
+        run: docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
 
       - name: Build Daily Todo Job
-        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job
+        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job .
 
       - name: Publish Backend
         run: docker push "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
