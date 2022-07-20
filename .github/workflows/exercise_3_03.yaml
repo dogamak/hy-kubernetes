@@ -13,6 +13,7 @@ env:
   GKE_ZONE: europe-north1-b
   FRONTEND_IMAGE: hy-kubernetes-todo-app-frontend
   BACKEND_IMAGE: hy-kubernetes-todo-app-backend
+  DAILY_TODO_JOB_IMAGE: hy-kubernetes-todo-app-daily-todo-job
 
 jobs:
   setup-build-publish-deploy-daily-todo-job:
