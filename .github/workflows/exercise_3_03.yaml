@@ -20,9 +20,14 @@ jobs:
     name: Setup, Build, Publish and Deploy Backend
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: "./${{ env.EXERCISE }}"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@main
         with:
@@ -31,8 +36,8 @@ jobs:
           export_default_credentials: true
 
       - run: gcloud --quiet auth configure-docker
+        working-directory: .
       - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-      - run: cd "$EXERCISE"
 
       - name: Build Frontend
         run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" frontend
