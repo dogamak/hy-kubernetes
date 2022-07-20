@@ -3,7 +3,7 @@ name: Release project (Exercise 3.03)
 on:
   push:
     paths:
-      - 'exercise_3.03'
+      - 'exercise_3.03/**'
 
 env:
   EXERCISE: "exercise_3.03"
