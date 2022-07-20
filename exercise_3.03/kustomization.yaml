@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - manifests/deployment.yaml
+  - manifests/ingress.yaml
+  - manifests/persistent-volume-claim.yaml
+  - manifests/postgres.yaml
+  - manifests/service.yaml
+  - manifests/config-map.yaml
+  - manifests/daily-todo-cronjob.yaml
+images:
+  - name: todo-app/frontend
+    newName: dogamak/hy-kubernetes-todo-app-frontend
+  - name: todo-app/backend
+    newName: dogamak/hy-kubernetes-todo-app-backend
+  - name: todo-app/daily-todo-job
+    newName: dogamak/hy-kubernetes-todo-app-daily-todo-job

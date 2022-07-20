@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: todo-ns
+  name: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+    spec:
+      volumes:
+        - name: todo-volume
+          persistentVolumeClaim:
+            claimName: todo-claim
+        - name: config-volume
+          configMap:
+            name: todo-config-map
+      containers:
+        - name: backend
+          image: todo-app/backend
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: todo-volume
+              mountPath: /data
+            - name: config-volume
+              mountPath: /config.toml
+              subPath: config
+          env:
+            - name: DATA_PATH
+              value: /data
+            - name: RUST_LOG
+              value: info
+            - name: TODO_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+        - name: frontend
+          image: todo-app/frontend
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: todo-volume
+              mountPath: /data

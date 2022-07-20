@@ -1,0 +1,16 @@
+[package]
+name = "todo_common"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+config = "0.13.1"
+deadpool = "0.9.5"
+deadpool-postgres = "0.10.2"
+refinery = { version = "0.8.4", features = ["tokio-postgres"] }
+anyhow = "1.0.58"
+serde = { version = "1.0.137", features = ["derive"] }
+tokio-postgres = { version = "0.7.6", features = ["with-uuid-1"] }
+uuid = { version = "1.1.2", features = ["v4", "serde"] }
