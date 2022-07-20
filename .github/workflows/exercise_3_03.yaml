@@ -46,7 +46,7 @@ jobs:
         run: docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app backend
 
       - name: Build Daily Todo Job
-        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job daily-todo-job
+        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job backend
 
       - name: Publish Frontend
         run: docker push "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
