@@ -37,7 +37,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
 
       - run: gcloud --quiet auth configure-docker
-      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      - uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
 
       - name: Build Frontend
         run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
@@ -62,11 +66,16 @@ jobs:
         with:
           credentials_json: '${{ secrets.GKE_SA_KEY }}'
 
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
       - run: gcloud --quiet auth configure-docker
-      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      - uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
 
       - name: Build Backend
         run: docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
