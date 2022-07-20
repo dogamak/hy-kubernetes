@@ -1,0 +1,133 @@
+name: Release project (Exercise 3.03)
+
+on:
+  push:
+    paths:
+      - 'exercise_3.03'
+
+env:
+  EXERCISE: "exercise_3.03"
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: hy-kube-cluster
+  GKE_ZONE: europe-north1-b
+  FRONTEND_IMAGE: hy-kubernetes-todo-app-frontend
+  BACKEND_IMAGE: hy-kubernetes-todo-app-backend
+
+jobs:
+  setup-build-publish-deploy-daily-todo-job:
+    name: Setup, Build, Publish and Deploy the Daily Todo Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GKE_PROJECT }}
+          service_account_id: ${{ secrets.GKE_SA_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud --quiet auth configure-docker
+      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+      - run: cd "$EXERCISE"
+
+      - name: Build
+        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" daily-todo-job
+
+      - name: Publish
+        run: docker push "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Deploy
+        run: |-
+          kustomize edit set image "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize build frontend/manifests manifests | kubectl apply -f -
+          kubectl rollout status deployment $DAILY_TODO_JOB_IMAGE
+          kubectl get services -o wide
+
+  setup-build-publish-deploy-frontend:
+    name: Setup, Build, Publish and Deploy Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GKE_PROJECT }}
+          service_account_id: ${{ secrets.GKE_SA_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud --quiet auth configure-docker
+      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+      - run: cd "$EXERCISE"
+
+      - name: Build
+        run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" frontend
+
+      - name: Publish
+        run: docker push "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Deploy
+        run: |-
+          kustomize edit set image "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize build frontend/manifests manifests | kubectl apply -f -
+          kubectl rollout status deployment $FRONTEND_IMAGE
+          kubectl get services -o wide
+
+  setup-build-publish-deploy-backend:
+    name: Setup, Build, Publish and Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GKE_PROJECT }}
+          service_account_id: ${{ secrets.GKE_SA_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud --quiet auth configure-docker
+      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      - name: Build
+        run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" frontend
+
+      - name: Publish
+        run: docker push "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+
+  deploy:
+    name: Deploy backend and frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GKE_PROJECT }}
+          service_account_id: ${{ secrets.GKE_SA_KEY }}
+          export_default_credentials: true
+
+      - run: gcloud --quiet auth configure-docker
+      - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v1
+
+      - name: Deploy
+        run: |-
+          kustomize edit set image "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment $IMAGE
+          kubectl get services -o wide
