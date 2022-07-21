@@ -104,7 +104,7 @@ jobs:
       - name: Install SOPS
         run: |-
           curl https://github.com/mozilla/sops/releases/download/v3.7.3/sops_3.7.3_amd64.deb -o sops_3.7.3_amd64.deb \
-            && dpkg -i sops_3.7.3_amd64.deb
+            && sudo dpkg -i sops_3.7.3_amd64.deb
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
