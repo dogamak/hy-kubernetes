@@ -28,6 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -36,7 +41,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - run: gcloud --quiet auth configure-docker
+      - run: gcloud --quiet auth configure-docker gcr.io
 
       - uses: google-github-actions/get-gke-credentials@v0
         with:
@@ -44,10 +49,10 @@ jobs:
           location: ${{ env.GKE_ZONE }}
 
       - name: Build Frontend
-        run: docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
+        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
 
       - name: Publish Frontend
-        run: docker push "gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
   setup-build-publish-backend:
     name: Setup, Build and Publish Backend
@@ -70,7 +75,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - run: gcloud --quiet auth configure-docker
+      - run: gcloud --quiet auth configure-docker gcr.io
 
       - uses: google-github-actions/get-gke-credentials@v0
         with:
@@ -78,16 +83,16 @@ jobs:
           location: ${{ env.GKE_ZONE }}
 
       - name: Build Backend
-        run: docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
+        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
 
       - name: Build Daily Todo Job
-        run: docker build --tag "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job .
+        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job .
 
       - name: Publish Backend
-        run: docker push "gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
       - name: Publish Daily Todo Job
-        run: docker push "gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
   deploy:
     name: Deploy Frontend & Backend
@@ -109,7 +114,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
 
-      - run: gcloud --quiet auth configure-docker
+      - run: gcloud --quiet auth configure-docker gcr.io
       - run: gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       - name: Set up Kustomize
@@ -117,9 +122,9 @@ jobs:
 
       - name: Deploy
         run: |-
-          kustomize edit set image "todo-app/frontend=gcr.io/$PROJECT_ID/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
-          kustomize edit set image "todo-app/backend=gcr.io/$PROJECT_ID/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
-          kustomize edit set image "todo-app/daily-todo-job=gcr.io/$PROJECT_ID/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/frontend=gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/backend=gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/daily-todo-job=gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           kustomize build frontend/manifests manifests | kubectl apply -f -
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
