@@ -49,10 +49,10 @@ jobs:
           limit-access-to-actor: true
 
       - name: Build Frontend
-        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
+        run: docker build --tag "gcr.io/${{ steps.auth.outputs.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" .
 
       - name: Publish Frontend
-        run: docker push "gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.outputs.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
   setup-build-publish-backend:
     name: Setup, Build and Publish Backend
@@ -83,16 +83,16 @@ jobs:
           location: ${{ env.GKE_ZONE }}
 
       - name: Build Backend
-        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
+        run: docker build --tag "gcr.io/${{ steps.auth.outputs.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target todo-app .
 
       - name: Build Daily Todo Job
-        run: docker build --tag "gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job .
+        run: docker build --tag "gcr.io/${{ steps.auth.outputs.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA" --target daily-todo-job .
 
       - name: Publish Backend
-        run: docker push "gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.outputs.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
       - name: Publish Daily Todo Job
-        run: docker push "gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+        run: docker push "gcr.io/${{ steps.auth.outputs.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
 
   deploy:
     name: Deploy Frontend & Backend
@@ -122,9 +122,9 @@ jobs:
 
       - name: Deploy
         run: |-
-          kustomize edit set image "todo-app/frontend=gcr.io/${{ steps.auth.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
-          kustomize edit set image "todo-app/backend=gcr.io/${{ steps.auth.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
-          kustomize edit set image "todo-app/daily-todo-job=gcr.io/${{ steps.auth.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/frontend=gcr.io/${{ steps.auth.outputs.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/backend=gcr.io/${{ steps.auth.outputs.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
+          kustomize edit set image "todo-app/daily-todo-job=gcr.io/${{ steps.auth.outputs.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           kustomize build frontend/manifests manifests | kubectl apply -f -
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
