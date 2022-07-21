@@ -101,15 +101,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Install SOPS
-      #   run: |-
-      #     curl https://github.com/mozilla/sops/releases/download/v3.7.3/sops_3.7.3_amd64.deb -o sops_3.7.3_amd64.deb \
-      #       && sudo dpkg -i sops_3.7.3_amd64.deb
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
+      - name: Install SOPS
+        run: |-
+          wget https://github.com/mozilla/sops/releases/download/v3.7.3/sops_3.7.3_amd64.deb \
+            && sudo dpkg -i sops_3.7.3_amd64.deb
 
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
@@ -135,3 +130,5 @@ jobs:
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
         working-directory: './${{ env.EXERCISE }}'
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
