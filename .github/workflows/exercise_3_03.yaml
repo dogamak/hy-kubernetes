@@ -101,6 +101,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Install SOPS
+        run: |-
+          curl https://github.com/mozilla/sops/releases/download/v3.7.3/sops_3.7.3_amd64.deb -o sops_3.7.3_amd64.deb \
+            && dpkg -i sops_3.7.3_amd64.deb
+
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
@@ -120,7 +125,8 @@ jobs:
           kustomize edit set image "todo-app/frontend=gcr.io/${{ steps.auth.outputs.project_id }}/$FRONTEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           kustomize edit set image "todo-app/backend=gcr.io/${{ steps.auth.outputs.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           kustomize edit set image "todo-app/daily-todo-job=gcr.io/${{ steps.auth.outputs.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
-          kustomize build frontend/manifests manifests | kubectl apply -f -
+          sops --decrypt manifests/postgres-secret.enc.yaml | kubectl apply -f -
+          kustomize build manifests | kubectl apply -f -
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
         working-directory: './${{ env.EXERCISE }}'
