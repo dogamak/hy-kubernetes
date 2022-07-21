@@ -123,3 +123,4 @@ jobs:
           kustomize build frontend/manifests manifests | kubectl apply -f -
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
+        working-directory: './${{ env.EXERCISE }}'
