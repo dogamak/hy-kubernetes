@@ -126,7 +126,7 @@ jobs:
           kustomize edit set image "todo-app/backend=gcr.io/${{ steps.auth.outputs.project_id }}/$BACKEND_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           kustomize edit set image "todo-app/daily-todo-job=gcr.io/${{ steps.auth.outputs.project_id }}/$DAILY_TODO_JOB_IMAGE:${GITHUB_REF#refs/heads/}-$GITHUB_SHA"
           sops --decrypt manifests/postgres-secret.enc.yaml | kubectl apply -f -
-          kustomize build manifests | kubectl apply -f -
+          kustomize build | kubectl apply -f -
           kubectl rollout status deployment $FRONTEND_IMAGE
           kubectl get services -o wide
         working-directory: './${{ env.EXERCISE }}'
